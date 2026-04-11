@@ -42,7 +42,7 @@ const FinalCTA: React.FC = () => {
         </p>
 
         <p className={`reveal reveal-delay-3 text-base max-w-md mx-auto mb-12 leading-relaxed${inView ? ' visible' : ''}`} style={{ color: '#64748B' }}>
-          Uma conversa curta. Sem compromisso. Vemos juntos se faz sentido.
+          conversamos sobre o business. fazemos o brainstorming,e Vemos juntos como prosseguir.
         </p>
 
         <div className={`reveal reveal-delay-4${inView ? ' visible' : ''}`}>
