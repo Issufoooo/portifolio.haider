@@ -140,7 +140,7 @@ const AboutContact: React.FC = () => {
               <h4 className="text-sm font-bold text-gray-300 mb-3">Como trabalho</h4>
               <ol className="space-y-2.5" aria-label="Processo de trabalho">
                 {[
-                  '01 — Conversa inicial (gratuita)',
+                  '01 — Conversa inicial (for free)',
                   '02 — Proposta e alinhamento',
                   '03 — Execução com atualizações regulares',
                   '04 — Entrega e suporte pós-projeto',
