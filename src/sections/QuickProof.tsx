@@ -1,13 +1,15 @@
 import React from 'react';
 import { useInView } from '../hooks/useInView';
+import { useHeaderReveal } from '../hooks/useHeaderReveal';
+import { FocusCards, type FocusCardItem } from '../components/aceternity/focus-cards';
 
 // ============================================================
 // SECTION 2 — QUICK PROOF
-// 3–4 image-focused visual highlights. Minimal text.
-// Scroll-reveal on entry.
+// 4 destaques visuais. Aceternity "Focus Cards": ao passar o rato
+// num cartão, os restantes desfocam e o foco fica no trabalho.
 // ============================================================
 
-const PROOF_ITEMS = [
+const PROOF_ITEMS: FocusCardItem[] = [
   {
     id: 'proof-1',
     image: '/assets/designs/dhs/tshirts/tshirt-lost-reality.jpg',
@@ -40,66 +42,34 @@ const PROOF_ITEMS = [
 
 const QuickProof: React.FC = () => {
   const { ref, inView } = useInView();
+  useHeaderReveal(ref);
 
   return (
-    <section
-      id="quick-proof"
-      className="py-20 md:py-28 overflow-hidden"
-      aria-label="Trabalhos em destaque"
-    >
+    <section id="quick-proof" className="py-20 md:py-28 overflow-hidden" aria-label="Trabalhos em destaque">
       <div className="max-w-6xl mx-auto px-5 md:px-8">
-
         {/* Header */}
-        <div
-          ref={ref}
-          className={`reveal mb-12${inView ? ' visible' : ''}`}
-        >
-          <span className="section-label block mb-3">Prova rápida</span>
-          <h2 className="text-3xl md:text-4xl font-bold leading-tight" style={{ color: '#F3F4F6' }}>
-            Resultados que falam{' '}
-            <span className="gradient-text-blue">por si</span>.
+        <div ref={ref} className="mb-12">
+          <span data-fade className="section-label block mb-3">
+            Prova rápida
+          </span>
+          <h2
+            data-split
+            className="text-3xl md:text-4xl font-bold leading-tight text-balance"
+            style={{ color: '#F3F4F6' }}
+          >
+            Resultados que falam <span className="gradient-text-blue">por si</span>.
           </h2>
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          {PROOF_ITEMS.map((item, i) => (
-            <div
-              key={item.id}
-              className={`proof-card reveal reveal-delay-${i + 1}${inView ? ' visible' : ''}`}
-            >
-              {/* Image */}
-              {item.image ? (
-                <img
-                  src={item.image}
-                  alt=""
-                  aria-hidden="true"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-full h-full placeholder-img" aria-hidden="true" />
-              )}
-
-              {/* Overlay */}
-              <div className="proof-card-overlay" aria-hidden="true">
-                <span
-                  className="text-xs font-bold tracking-widest uppercase mb-1 block"
-                  style={{ color: '#3B82F6' }}
-                >
-                  {item.label}
-                </span>
-                <span className="text-sm font-semibold style={{ color: '#F3F4F6' }} leading-tight block">
-                  {item.title}
-                </span>
-                <span className="text-xs style={{ color: '#CBD5E1' }} mt-0.5 block">{item.stat}</span>
-              </div>
-            </div>
-          ))}
+        <div className={`reveal reveal-delay-2${inView ? ' visible' : ''}`}>
+          <FocusCards cards={PROOF_ITEMS} />
         </div>
 
         {/* Bottom note */}
         <p
-          className={`text-center style={{ color: '#64748B' }} text-sm mt-8 reveal reveal-delay-4${inView ? ' visible' : ''}`}
+          className={`text-center text-sm mt-8 reveal reveal-delay-3${inView ? ' visible' : ''}`}
+          style={{ color: '#64748B' }}
         >
           Cada projeto abaixo tem o contexto completo — problema, solução e resultado.
         </p>

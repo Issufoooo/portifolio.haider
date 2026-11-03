@@ -1,5 +1,6 @@
 
 import React, { useState, useCallback } from 'react';
+import { motion, type Variants } from 'motion/react';
 import { useMobile } from '../hooks/useMobile';
 
 export interface ServiceItem {
@@ -11,6 +12,16 @@ export interface ServiceItem {
   points: string[];
   icon: React.ReactNode;
 }
+
+// Entrada escalonada do conteúdo quando um cartão abre (desktop)
+const listVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.18 } },
+};
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+};
 
 interface FlexExpandCardsProps {
   services: ServiceItem[];
@@ -165,7 +176,7 @@ const FlexExpandCards: React.FC<FlexExpandCardsProps> = ({ services }) => {
             aria-label={`Serviço: ${service.title}`}
             className={[
               'group relative overflow-hidden rounded-[28px] border cursor-pointer',
-              'transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
+              'transition-all duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]',
               'bg-[linear-gradient(180deg,rgba(15,27,52,0.92),rgba(8,18,37,0.98))]',
               'border-white/10',
               isActive
@@ -194,36 +205,47 @@ const FlexExpandCards: React.FC<FlexExpandCardsProps> = ({ services }) => {
                 isActive ? 'opacity-100' : 'opacity-0 pointer-events-none',
               ].join(' ')}
             >
-              <div className="relative z-10 h-full flex flex-col px-7 pt-16 pb-7">
-                <div className="mb-5 text-blue-400">{service.icon}</div>
-
-                <h3 className="text-[28px] font-black text-slate-100 leading-tight">
-                  {service.title}
-                </h3>
-
-                <p className="mt-3 text-blue-300 text-[15px] font-semibold italic leading-7 max-w-[36ch]">
-                  "{service.tagline}"
-                </p>
-
-                <p className="mt-5 text-slate-300 text-[15px] leading-8 max-w-[42ch]">
-                  {service.description}
-                </p>
-
-                <ul
-                  className="mt-6 space-y-3"
-                  aria-label={`O que inclui ${service.title}`}
+              {isActive && (
+                <motion.div
+                  key={`${service.id}-content`}
+                  className="relative z-10 h-full flex flex-col px-7 pt-16 pb-7"
+                  variants={listVariants}
+                  initial="hidden"
+                  animate="show"
                 >
-                  {service.points.map((point, i) => (
-                    <li
-                      key={i}
-                      className="flex items-start gap-3 text-slate-300 text-[15px] leading-7"
-                    >
-                      <span className="mt-2 w-2 h-2 rounded-full bg-blue-400 shrink-0" />
-                      <span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                  <motion.div variants={itemVariants} className="mb-5 text-blue-400">
+                    {service.icon}
+                  </motion.div>
+
+                  <motion.h3 variants={itemVariants} className="text-[28px] font-black text-slate-100 leading-tight">
+                    {service.title}
+                  </motion.h3>
+
+                  <motion.p
+                    variants={itemVariants}
+                    className="mt-3 text-blue-300 text-[15px] font-semibold italic leading-7 max-w-[36ch]"
+                  >
+                    "{service.tagline}"
+                  </motion.p>
+
+                  <motion.p variants={itemVariants} className="mt-5 text-slate-300 text-[15px] leading-8 max-w-[42ch]">
+                    {service.description}
+                  </motion.p>
+
+                  <ul className="mt-6 space-y-3" aria-label={`O que inclui ${service.title}`}>
+                    {service.points.map((point, i) => (
+                      <motion.li
+                        key={i}
+                        variants={itemVariants}
+                        className="flex items-start gap-3 text-slate-300 text-[15px] leading-7"
+                      >
+                        <span className="mt-2 w-2 h-2 rounded-full bg-blue-400 shrink-0" />
+                        <span>{point}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
 
               <div className="pointer-events-none absolute inset-0">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(96,165,250,0.14),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.10),transparent_30%)]" />

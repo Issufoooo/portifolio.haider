@@ -15,10 +15,23 @@
    text-3:  #64748B
    ============================================= */
 
+/* Tokens shadcn/ui (canais RGB) ligados à paleta do site */
+:root {
+  --background: 8 18 37;
+  --foreground: 243 244 246;
+  --card: 15 27 52;
+  --muted: 11 26 48;
+  --muted-foreground: 148 163 184;
+  --border: 96 165 250;
+  --ring: 96 165 250;
+  --destructive: 239 68 68;
+  --radius: 0.75rem;
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
-  scroll-behavior: smooth;
+  /* scroll suave é gerido pelo Lenis (src/lib/scroll.ts) */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -860,7 +873,7 @@ body {
 }
 
 /* Light dividers between every section */
-section + section {
+main > section + section {
   border-top: 1px solid rgba(96,165,250,0.06);
 }
 

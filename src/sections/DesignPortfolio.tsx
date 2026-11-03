@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { companies, type Company, type WorkItem } from '../data/companies';
 import GalleryModal from '../components/GalleryModal';
 import { useInView } from '../hooks/useInView';
+import { useHeaderReveal } from '../hooks/useHeaderReveal';
+import { scrollToTarget } from '../lib/scroll';
 
 // ============================================================
 // SECTION 5 — DESIGN PORTFOLIO
@@ -112,7 +115,7 @@ const CompanyCard: React.FC<{
 // ── Work block ────────────────────────────────────────────────
 const WorkBlock: React.FC<{
   work: WorkItem;
-  onImageClick: () => void;
+  onImageClick: (index: number) => void;
 }> = ({ work, onImageClick }) => (
   <div>
     {/* Work label row */}
@@ -138,7 +141,7 @@ const WorkBlock: React.FC<{
       gridTemplateColumns: 'repeat(auto-fill, minmax(148px, 1fr))',
     }}>
       {work.images.map((img, i) => (
-        <button key={i} onClick={onImageClick}
+        <button key={i} onClick={() => onImageClick(i)}
           className="relative rounded-xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-blue-400"
           style={{ aspectRatio: '1/1', background: '#0F1B34', border: '1px solid rgba(96,165,250,0.08)' }}
           aria-label={`Abrir galeria — ${work.name}`}>
@@ -170,21 +173,31 @@ const WorkBlock: React.FC<{
 const CompanyPanel: React.FC<{
   company: Company;
   onClose: () => void;
-  onImageClick: (work: WorkItem) => void;
+  onImageClick: (work: WorkItem, index: number) => void;
 }> = ({ company, onClose, onImageClick }) => {
   const panelRef = useRef<HTMLDivElement>(null);
 
+  // Leva o painel para a vista (com o scroll suave do Lenis)
   useEffect(() => {
-    setTimeout(() => panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
+    const t = setTimeout(() => {
+      const el = panelRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      if (r.top > window.innerHeight * 0.55 || r.top < 0) scrollToTarget(el, -90);
+    }, 120);
+    return () => clearTimeout(t);
   }, []);
 
   return (
-    <div ref={panelRef} className="mt-8 rounded-2xl overflow-hidden"
+    <motion.div ref={panelRef} className="mt-8 rounded-2xl overflow-hidden"
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 12 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       style={{
         background: '#060F1E',
         border: '1px solid rgba(96,165,250,0.18)',
         boxShadow: '0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.08)',
-        animation: 'modalIn 0.35s cubic-bezier(0.77, 0, 0.175, 1) forwards',
       }}
       aria-live="polite" aria-label={`Portfólio de ${company.name}`}>
 
@@ -218,26 +231,28 @@ const CompanyPanel: React.FC<{
       <div className="p-6 md:p-7 space-y-10">
         {company.works.map((work, i) => (
           <React.Fragment key={work.id}>
-            <WorkBlock work={work} onImageClick={() => onImageClick(work)} />
+            <WorkBlock work={work} onImageClick={(idx) => onImageClick(work, idx)} />
             {i < company.works.length - 1 && (
               <div className="section-divider" aria-hidden="true" />
             )}
           </React.Fragment>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
 // ── Section ───────────────────────────────────────────────────
 const DesignPortfolio: React.FC = () => {
   const { ref, inView } = useInView();
+  useHeaderReveal(ref);
   const [activeCompany, setActiveCompany] = useState<Company | null>(null);
-  const [activeWork, setActiveWork] = useState<WorkItem | null>(null);
+  // `activeWork` fica guardado depois de fechar para o lightbox poder animar a saída
+  const [activeWork, setActiveWork] = useState<{ work: WorkItem; index: number } | null>(null);
+  const [galleryOpen, setGalleryOpen] = useState(false);
 
   const toggle = (company: Company) => {
     setActiveCompany(prev => prev?.id === company.id ? null : company);
-    setActiveWork(null);
   };
 
   return (
@@ -247,13 +262,13 @@ const DesignPortfolio: React.FC = () => {
       <div className="max-w-6xl mx-auto px-5 md:px-8">
 
         {/* Header */}
-        <div ref={ref} className={`reveal mb-14${inView ? ' visible' : ''}`}>
-          <span className="section-label block mb-3">Portfólio de Design</span>
+        <div ref={ref} className="mb-14">
+          <span data-fade className="section-label block mb-3">Portfólio de Design</span>
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <h2 className="text-3xl md:text-4xl font-bold leading-tight" style={{ color: '#F3F4F6' }}>
+            <h2 data-split className="text-3xl md:text-4xl font-bold leading-tight text-balance" style={{ color: '#F3F4F6' }}>
               Trabalho que <span className="gradient-text-blue">posiciona</span>.
             </h2>
-            <p className="text-sm max-w-xs leading-relaxed" style={{ color: '#64748B' }}>
+            <p data-fade className="text-sm max-w-xs leading-relaxed" style={{ color: '#64748B' }}>
               Selecciona uma empresa para ver todos os trabalhos e imagens.
             </p>
           </div>
@@ -270,16 +285,29 @@ const DesignPortfolio: React.FC = () => {
         </div>
 
         {/* Expanded panel */}
-        {activeCompany && (
-          <CompanyPanel
-            company={activeCompany}
-            onClose={() => setActiveCompany(null)}
-            onImageClick={work => setActiveWork(work)}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          {activeCompany && (
+            <CompanyPanel
+              key={activeCompany.id}
+              company={activeCompany}
+              onClose={() => setActiveCompany(null)}
+              onImageClick={(work, index) => {
+                setActiveWork({ work, index });
+                setGalleryOpen(true);
+              }}
+            />
+          )}
+        </AnimatePresence>
       </div>
 
-      {activeWork && <GalleryModal work={activeWork} onClose={() => setActiveWork(null)} />}
+      {activeWork && (
+        <GalleryModal
+          work={activeWork.work}
+          initialIndex={activeWork.index}
+          open={galleryOpen}
+          onOpenChange={setGalleryOpen}
+        />
+      )}
     </section>
   );
 };

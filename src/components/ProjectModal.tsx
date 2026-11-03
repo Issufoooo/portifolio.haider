@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
 import type { WebProject } from '../data/projects';
 import MobileMockupFrame from './MobileMockupFrame';
 import SliceButton from './SliceButton';
+import { Badge } from './ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from './ui/dialog';
+import { useLenisLock } from '../hooks/useLenisLock';
 
 // ============================================================
-// PROJECT MODAL
+// PROJECT MODAL  (shadcn/ui Dialog sobre Radix)
+// Foco preso dentro do modal, Esc fecha, devolve o foco ao cartão.
 // Supports phone mockup (mobile-first) and desktop mockup (SaaS).
 // Order: video/mockup → problem/solution/result → screenshots → link
 // ============================================================
@@ -44,20 +49,6 @@ const DesktopFrame: React.FC<{ src: string; alt: string }> = ({ src, alt }) => (
   </div>
 );
 
-// ── Tag pill ──────────────────────────────────────────────
-const Tag: React.FC<{ label: string }> = ({ label }) => (
-  <span
-    className="text-xs font-semibold px-2.5 py-1 rounded-full"
-    style={{
-      background: 'rgba(59,130,246,0.12)',
-      border: '1px solid rgba(59,130,246,0.25)',
-      color: '#3B82F6',
-    }}
-  >
-    {label}
-  </span>
-);
-
 // ── Info block ────────────────────────────────────────────
 const InfoBlock: React.FC<{
   label: string;
@@ -88,54 +79,43 @@ const InfoBlock: React.FC<{
 // ── Main modal ────────────────────────────────────────────
 interface ProjectModalProps {
   project: WebProject;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) => {
+const ProjectModal: React.FC<ProjectModalProps> = ({ project, open, onOpenChange }) => {
   const [screenshotIdx, setScreenshotIdx] = useState(0);
   const isPhone = project.mockupType === 'phone';
   const hasScreenshots = (project.screenshots?.length ?? 0) > 1;
 
-  // Lock scroll
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
-  }, []);
-
-  // Escape to close
-  useEffect(() => {
-    const h = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', h);
-    return () => window.removeEventListener('keydown', h);
-  }, [onClose]);
+  useLenisLock(open);
 
   return (
-    <div
-      className="modal-overlay"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-      role="dialog"
-      aria-modal="true"
-      aria-label={`Detalhes: ${project.name}`}
-    >
-      <div className="modal-container">
+    <Dialog open={open} onOpenChange={(o) => { if (!o) setScreenshotIdx(0); onOpenChange(o); }}>
+      <DialogContent
+        className="w-[calc(100%-2rem)] max-w-[920px] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain rounded-[22px] border border-secondary/20 bg-canvas-card"
+        aria-describedby="project-desc"
+      >
         {/* Close */}
-        <button className="modal-close" onClick={onClose} aria-label="Fechar">
+        <DialogPrimitive.Close className="modal-close" aria-label="Fechar">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
           </svg>
-        </button>
+        </DialogPrimitive.Close>
 
         <div className="p-6 md:p-8">
 
           {/* Header */}
           <div className="mb-6 pr-10">
             <div className="flex flex-wrap gap-2 mb-3">
-              {project.tags.map(t => <Tag key={t} label={t} />)}
+              {project.tags.map(t => <Badge key={t} variant="pill">{t}</Badge>)}
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-200 leading-tight mb-2">
+            <DialogTitle className="text-2xl md:text-3xl font-bold text-gray-200 leading-tight mb-2">
               {project.name}
-            </h2>
-            <p className="text-gray-400 text-base">{project.description}</p>
+            </DialogTitle>
+            <DialogDescription id="project-desc" className="text-gray-400 text-base">
+              {project.description}
+            </DialogDescription>
           </div>
 
           {/* ── Layout: phone = side-by-side, desktop = stacked ── */}
@@ -239,8 +219,8 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) => {
           )}
 
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

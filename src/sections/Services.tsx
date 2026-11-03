@@ -2,6 +2,7 @@ import React from 'react';
 import FlexExpandCards from '../components/FlexExpandCards';
 import type { ServiceItem } from '../components/FlexExpandCards';
 import { useInView } from '../hooks/useInView';
+import { useHeaderReveal } from '../hooks/useHeaderReveal';
 
 // ============================================================
 // SECTION 3 — SERVICES
@@ -106,6 +107,7 @@ const SERVICES: ServiceItem[] = [
 
 const Services: React.FC = () => {
   const { ref, inView } = useInView();
+  useHeaderReveal(ref);
 
   return (
     <section
@@ -116,17 +118,14 @@ const Services: React.FC = () => {
       <div className="max-w-6xl mx-auto px-5 md:px-8">
 
         {/* Header */}
-        <div
-          ref={ref}
-          className={`reveal mb-10${inView ? ' visible' : ''}`}
-        >
-          <span className="section-label block mb-3">Serviços</span>
+        <div ref={ref} className="mb-10">
+          <span data-fade className="section-label block mb-3">Serviços</span>
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <h2 className="text-3xl md:text-4xl font-bold leading-tight max-w-lg" style={{ color: '#F3F4F6' }}>
+            <h2 data-split className="text-3xl md:text-4xl font-bold leading-tight max-w-lg text-balance" style={{ color: '#F3F4F6' }}>
               O que faço e{' '}
               <span className="gradient-text-blue">como penso</span>.
             </h2>
-            <p className="text-sm max-w-xs md:text-right leading-relaxed" style={{ color: '#CBD5E1' }}>
+            <p data-fade className="text-sm max-w-xs md:text-right leading-relaxed" style={{ color: '#CBD5E1' }}>
               Clica em cada serviço para ver o detalhe. No mobile, toca para expandir.
             </p>
           </div>

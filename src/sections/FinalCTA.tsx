@@ -1,6 +1,8 @@
 import React from 'react';
-import SliceButton from '../components/SliceButton';
+import Magnetic from '../components/Magnetic';
+import { MovingBorderButton } from '../components/aceternity/moving-border';
 import { useInView } from '../hooks/useInView';
+import { useHeaderReveal } from '../hooks/useHeaderReveal';
 
 // ============================================================
 // SECTION 8 — FINAL CTA + FOOTER
@@ -8,6 +10,7 @@ import { useInView } from '../hooks/useInView';
 
 const FinalCTA: React.FC = () => {
   const { ref, inView } = useInView({ threshold: 0.2 });
+  useHeaderReveal(ref);
 
   return (
     <section
@@ -29,7 +32,8 @@ const FinalCTA: React.FC = () => {
         </div>
 
         <h2
-          className={`reveal reveal-delay-1 text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-5${inView ? ' visible' : ''}`}
+          data-split
+          className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-5 text-balance"
           style={{ color: '#F3F4F6' }}
         >
           Se queres continuar igual,{' '}
@@ -46,20 +50,25 @@ const FinalCTA: React.FC = () => {
         </p>
 
         <div className={`reveal reveal-delay-4${inView ? ' visible' : ''}`}>
-          <SliceButton
-            href="https://wa.me/258871368121"
-            variant="primary"
-            size="lg"
-            external
-            icon={
+          <Magnetic strength={0.18}>
+            <MovingBorderButton
+              as="a"
+              href="https://wa.me/258871368121"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-base md:text-lg"
+            >
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
-                <path d="M8.5 1.5a7 7 0 100 14 7 7 0 000-14zM5.5 8.5c0 3 4 5.5 6.5 4.5M11 6.5s-.5-.5-1-.5-3 1-3 3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                <path
+                  d="M8.5 1.5a7 7 0 100 14 7 7 0 000-14zM5.5 8.5c0 3 4 5.5 6.5 4.5M11 6.5s-.5-.5-1-.5-3 1-3 3.5"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                />
               </svg>
-            }
-            iconPosition="left"
-          >
-            Falar comigo no WhatsApp
-          </SliceButton>
+              Falar comigo no WhatsApp
+            </MovingBorderButton>
+          </Magnetic>
         </div>
 
         <p className={`reveal reveal-delay-4 text-xs mt-5${inView ? ' visible' : ''}`} style={{ color: '#334155' }}>

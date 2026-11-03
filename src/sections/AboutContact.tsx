@@ -2,6 +2,7 @@ import React from 'react';
 import ProfileCard from '../components/ProfileCard';
 import LayeredCard from '../components/LayeredCard';
 import { useInView } from '../hooks/useInView';
+import { useHeaderReveal } from '../hooks/useHeaderReveal';
 import type { ProfileLink } from '../components/ProfileCard';
 import type { SocialLink } from '../components/LayeredCard';
 
@@ -76,6 +77,7 @@ const SOCIAL_LINKS: SocialLink[] = [
 
 const AboutContact: React.FC = () => {
   const { ref, inView } = useInView();
+  useHeaderReveal(ref);
 
   return (
     <section
@@ -86,12 +88,9 @@ const AboutContact: React.FC = () => {
       <div className="max-w-6xl mx-auto px-5 md:px-8">
 
         {/* Header */}
-        <div
-          ref={ref}
-          className={`reveal mb-12${inView ? ' visible' : ''}`}
-        >
-          <span className="section-label block mb-3">Sobre & Contacto</span>
-          <h2 className="text-3xl md:text-4xl font-bold leading-tight" style={{ color: '#F3F4F6' }}>
+        <div ref={ref} className="mb-12">
+          <span data-fade className="section-label block mb-3">Sobre & Contacto</span>
+          <h2 data-split className="text-3xl md:text-4xl font-bold leading-tight text-balance" style={{ color: '#F3F4F6' }}>
             A pessoa por trás{' '}
             <span className="gradient-text-blue">do trabalho</span>.
           </h2>

@@ -8,7 +8,7 @@ import React from 'react';
 
 interface SliceButtonProps {
   children: React.ReactNode;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
   href?: string;
   variant?: 'primary' | 'outline' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
@@ -62,6 +62,7 @@ const SliceButton: React.FC<SliceButtonProps> = ({
         className={classes}
         target={external ? '_blank' : undefined}
         rel={external ? 'noopener noreferrer' : undefined}
+        onClick={onClick}
         aria-disabled={disabled}
       >
         {inner}
